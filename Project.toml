@@ -1,0 +1,4 @@
+name = "KernelCL"
+uuid = "c471fc0e-df28-44cb-bf2b-6e5a0573c428"
+authors = ["alvestad10 <alvestad10@gmail.com>"]
+version = "0.1.0"
