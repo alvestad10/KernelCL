@@ -16,8 +16,8 @@ markers_dict(color,markershape) = Dict(
                         :color => color,
                         :markershape => markershape,
                         :markersize  => M_SIZE,
-                        :markerstrokecolor => color,
-                        :lw => false)
+                        :markerstrokecolor => color)#,
+                        #:lw => false)
 
 markers_dict(color) = markers_dict(color,:square) 
 
