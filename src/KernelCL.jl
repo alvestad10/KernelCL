@@ -1,5 +1,22 @@
 module KernelCL
 
-greet() = print("Hello World!")
+using LinearAlgebra, Statistics
+using StochasticDiffEq
+using Parameters, Measurements
+using Plots, LaTeXStrings 
+using JLD2
+using SparseArrays
+using Plots
+
+include("model.jl")
+include("kernel.jl")
+include("problem.jl")
+#include("learnKernel.jl")
+
+include("Implementations/imp_AHO.jl")
+#include("Implementations/Imp_LM_AHO.jl")
+
+include("solutions.jl")
+include("plotScripts.jl")
 
 end # module

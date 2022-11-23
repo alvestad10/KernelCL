@@ -49,12 +49,7 @@ end
 
 
 function run_sim(KP::KernelProblem, runSetup::RunSetup)
-    @unpack tspan, NTr, saveat,scheme, dt, abstol, reltol, dtmax, adaptive, tspan_thermalization, dt_thermalization,scheme_thermalization, dtmax_thermalization, abstol_thermalization, reltol_thermalization = runSetup
-#end
-
-
-#function run_sim(KP::KernelProblem; tspan=20, NTr = 10, saveat=0.01, scheme=ImplicitEM(), 
-#                dt=1e-4, abstol=1e-3, reltol=1e-3, dtmax=1e-3,adaptive=true,tspan_thermalization=5)
+    @unpack tspan, NTr, saveat,scheme, dt, abstol, reltol, dtmax, adaptive, tspan_thermalization = runSetup
 
     @unpack kernel, a, b, model = KP
     K = getKernelParamsSim(kernel)
@@ -67,7 +62,7 @@ function run_sim(KP::KernelProblem, runSetup::RunSetup)
         noise_rate_prototype = zeros(2,1)
     end
 
-    function prob_init_func(prob,i,repeat)
+    function prob_func(prob,i,repeat)
         if model isa AHO
             prob.u0 .= [rand(model.contour.t_steps); zeros(model.contour.t_steps)]
         else
@@ -76,39 +71,22 @@ function run_sim(KP::KernelProblem, runSetup::RunSetup)
         prob
     end
 
-    if !all(kernel.pK.sqrtK .== kernel.pK.K[:,1:div(end,2)]) # If not identity kernel
-        prob_thermalization = SDEProblem(a,b,u0,(0.0,tspan_thermalization),K, noise_rate_prototype=noise_rate_prototype)
-    else
-        prob_thermalization = SDEProblem(a,b,u0,(0.0,tspan_thermalization),K)
-    end
-    
-    ensembleProb_init = EnsembleProblem(prob_init,prob_func=prob_init_func)
-    sol_init = solve(ensembleProb_init, scheme_thermalization,
-                    EnsembleThreads(); trajectories=NTr, 
-                    dt=dt_thermalization, saveat=[tspan_init], #save_start=false,
-                    dtmax=dtmax_thermalization,abstol=abstol_thermalization,reltol=reltol_thermalization)
+    prob = SDEProblem(a,b,u0,(0.0,tspan),K,noise_rate_prototype=noise_rate_prototype)
 
-    function prob_func(prob,i,repeat)
-        prob.u0 .= sol_init[i].u[end]
-        prob
-    end
-
-    if !all(kernel.pK.sqrtK .== kernel.pK.K[:,1:div(end,2)]) # If not identity kernel
-        prob = SDEProblem(a,b,u0,(0.0,tspan),K,noise_rate_prototype=noise_rate_prototype)
-    else
-        prob = SDEProblem(a,b,u0,(0.0,tspan),K)
-    end
-
-ensembleProb = EnsembleProblem(prob,prob_func=prob_func)
-return solve(ensembleProb,
-    scheme,
-    EnsembleThreads(); trajectories=NTr, 
-    adaptive=adaptive,
-    dt=dt, 
-    saveat=saveat, save_start=false,
-    dtmax=dtmax,
-    abstol=abstol,reltol=reltol)
+    ensembleProb = EnsembleProblem(prob,prob_func=prob_func)
+    return solve(ensembleProb,
+                scheme,
+                EnsembleThreads(); trajectories=NTr, 
+                adaptive=adaptive,
+                dt=dt, 
+                saveat=tspan_thermalization:saveat:tspan, save_start=false,
+                dtmax=dtmax,
+                abstol=abstol,reltol=reltol)
 end
 
 
 
+function trueSolution(KP::KernelProblem, runSetup::RunSetup)
+    sol = run_sim(KP,runSetup)
+    
+end
