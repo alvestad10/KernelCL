@@ -796,10 +796,6 @@ function setKernel!(kernel::ConstantKernel{LM_AHO_ConstKernel_θ},v)
     kernel.pK.θ .= v
 end
 
-function setKernel!(kernel::ConstantKernel{U1_ConstKernel},v)
-    kernel.pK.θ .= v
-end
-
 
 ###############
 
