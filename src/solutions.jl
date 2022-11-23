@@ -1,5 +1,3 @@
-export y_LM_AHO_x2, y_LM_AHO_x, y_U1_expix, y_U1_expi2x
-
 using QuadGK
 using SpecialFunctions
 
@@ -46,24 +44,5 @@ function getSolutions(p::LM_AHO)
     yx3 = y_x3(p)
 
     return Dict("x" => yx, "x2" => yx2, "x3" => yx3)
-
-end
-
-
-function y_U1_expix(p::U1)
-    @unpack β = p
-    return - im * besselj1(β)/besselj0(β)
-end 
-
-function y_U1_expi2x(p::U1)
-    @unpack β = p
-    return - besselj(2,β)/besselj0(β)
-end 
-
-function getSolutions(p::U1)
-    exp1x = y_U1_expix(p)
-    exp2x = y_U1_expi2x(p)
-
-    return Dict("exp1Re" => real(exp1x), "exp1Im" => imag(exp1x), "exp2Re" => real(exp2x), "exp2Im" => imag(exp2x))
 
 end
