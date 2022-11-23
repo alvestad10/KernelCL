@@ -126,7 +126,7 @@ function calcSymLoss(sol,KP::KernelProblem{AHO}; obs_calc = nothing)
 
     normalized_err = maximum(err_avg2Re ./ real(KP.y["x2"]))
 
-    return normalized_err * mean(abs2, [ (real(KP.y["x"]) .- avgRe) ./ err_avgRe;
+    return normalized_err * sum(abs2, [ (real(KP.y["x"]) .- avgRe) ./ err_avgRe;
                     (imag(KP.y["x"]) .- avgIm) ./  err_avgIm;
                     (real(KP.y["x2"]) .- avg2Re) ./  err_avg2Re; 
                     (imag(KP.y["x2"]) .- avg2Im) ./ err_avg2Im;
@@ -159,20 +159,13 @@ function calcDriftLoss(sol,KP::KernelProblem{AHO,T};p=getKernelParams(KP.kernel)
     
     im_pre_fac_KC = KC*im*pre_fac    
 
-    _x = zeros(ComplexF64,t_steps)
-    _x = Zygote.Buffer(_x)
-    _A = zeros(ComplexF64,t_steps)
-    _A = Zygote.Buffer(_A)
-    _A_tmp = zeros(ComplexF64,t_steps)
-    _A_tmp = Zygote.Buffer(_A_tmp)
-    
     g(u) = begin
-        @. _x = (@view u[1:t_steps]) + im * (@view u[t_steps+1:end])
+        _x = (@view u[1:t_steps]) + im * (@view u[t_steps+1:end])
         
-        @. _A_tmp = (_x - _x[gm1]) / a[gm1] + (_x - _x[gp1]) / a - (a + a[gm1])/2 * (m * _x + (λ/6) * _x^3)
-        mul!(_A, im_pre_fac_KC, _A_tmp)
-        
-        return abs(real(adjoint(copy(_A)) * (-copy(x))) - norm(copy(_A)) * norm(copy(x)))^ξ
+        _A_tmp = @. (_x - _x[gm1]) / a[gm1] + (_x - _x[gp1]) / a - (a + a[gm1])/2 * (m * _x + (λ/6) * _x^3)
+        _A = im_pre_fac_KC * _A_tmp
+        #mul!(_A, im_pre_fac_KC, copy(_A_tmp))
+        return abs(real(adjoint(_A) * (-_x)) - norm(_A) * norm(_x))^ξ
 
     end
 
