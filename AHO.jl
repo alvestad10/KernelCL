@@ -1,9 +1,9 @@
 using KernelCL
 
 
-M = AHO(m=1.0,λ=24.,RT=1.0,β=1.0,steps_pr_length=10)
+M = AHO(;m=1.0,λ=24.,RT=1.0,β=1.0,steps_pr_length=10)
 KP = KernelProblem(M;kernel=KernelCL.ConstantKernel(M,kernelType=:expA));
-RS = RunSetup(tspan=50,NTr=50,saveat=0.05)
+RS = RunSetup(tspan=10,NTr=10,saveat=0.05)
 
 
 function get_new_lhistory()
@@ -52,7 +52,7 @@ println("Testing the optimal kernel")
 RS_test = RunSetup(tspan=30,NTr=100)
 sol = run_sim(bestKP,RS_test)
 l = KernelCL.calcTrueLoss(sol,bestKP)
-plotSKContour(bestKP,sol)
+display(plotSKContour(bestKP,sol))
 println("True loss: ", l,"\t Best LSym: ", bestLSym)
 
 

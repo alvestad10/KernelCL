@@ -20,13 +20,13 @@ Now all dependencies should be downloaded and the code is ready to be run.
 First a simple example to run the Anharmonic oscillator on the canonical Schwinger-Keldysh contour without a kernel up to 1.0 in real-time, and then plotting the result
 
 ```julia
-M = AHO(m=1.0,λ=24.,RT=1.0,β=1.0,steps_pr_length=10)
+M = AHO(;m=1.0,λ=24.,RT=1.0,β=1.0,steps_pr_length=10)
 KP = KernelProblem(M;kernel=KernelCL.ConstantKernel(M,kernelType=:expA));
 RS = RunSetup(tspan=30,NTr=30)
 
 sol = run_sim(KP,RS)
 l = KernelCL.calcTrueLoss(sol,KP)
-plotSKContour(KP,sol)
+display(plotSKContour(KP,sol))
 println("True loss= ",l)
 ```
 
@@ -39,7 +39,7 @@ Second a simple example to learn a kernel for the Anharmonic oscillator on the c
 using KernelCL
 
 
-M = AHO(m=1.0,λ=24.,RT=1.0,β=1.0,steps_pr_length=10)
+M = AHO(;m=1.0,λ=24.,RT=1.0,β=1.0,steps_pr_length=10)
 KP = KernelProblem(M;kernel=KernelCL.ConstantKernel(M,kernelType=:expA));
 RS = RunSetup(tspan=10,NTr=10,saveat=0.05)
 
@@ -93,7 +93,7 @@ println("Testing the optimal kernel")
 RS_test = RunSetup(tspan=30,NTr=100)
 sol = run_sim(bestKP,RS_test)
 l = KernelCL.calcTrueLoss(sol,bestKP)
-plotSKContour(bestKP,sol)
+display(plotSKContour(bestKP,sol))
 println("True loss: ", l,"\t Best LSym: ", bestLSym)
 ```
 
