@@ -18,6 +18,8 @@ function KernelProblem(model::Model;kernel=ConstantKernel(model))
     return KernelProblem(model,kernel,a_func!,b_func!,y)
 end
 
+Base.copy(KP::KernelProblem) = KernelProblem(KP.model;kernel=KP.kernel)
+
 function updateProblem(KP::KernelProblem)
     @unpack model, kernel, a, b, y = KP
 

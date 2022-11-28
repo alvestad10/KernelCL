@@ -105,17 +105,18 @@ function learnKernel(LK::LearnKernel; cb=(LK::LearnKernel; sol=nothing, addtohis
         @warn "All trajectories diverged"
         return 0
     end
-    cb(LK; sol = sol, addtohistory=true)
+    l = cb(LK; sol = sol, addtohistory=true)
     
     # initialize the derivative observable
     dKs = similar(getKernelParams(kernel))
-    
+    bestKernel = copy(KP)
+    bestLSym = l
     
     for i in 1:epochs
         
         unstable = false
 
-        println("EPOCH ", i, "/", epochs)#+start_inx)
+        println("EPOCH ", i, "/", epochs, "\t (time_run=",trun,")")
         
         for j in 1:runs_pr_epoch
             
@@ -129,7 +130,7 @@ function learnKernel(LK::LearnKernel; cb=(LK::LearnKernel; sol=nothing, addtohis
             end
             
             LD = mean(calcDriftLoss(reduce(hcat,sol[tr].u),KP) for tr in eachindex(sol))
-            println("Time ", j, ": ", trun, ", ", tdL,", LD: ", LD)
+            println("LDrift=",round(LD,digits=5), "\t (time_grad: ", round(tdL,digits=2), ")")
             
         end
 
@@ -143,8 +144,12 @@ function learnKernel(LK::LearnKernel; cb=(LK::LearnKernel; sol=nothing, addtohis
             break
         end
 
-        cb(LK; sol=sol, addtohistory=true)
+        l = cb(LK; sol=sol, addtohistory=true)
+
+        if l < bestLSym
+            bestLSym = l
+            bestKernel = copy(KP)
+        end
     end
-
-
+    return bestLsym, bestKernel
 end
