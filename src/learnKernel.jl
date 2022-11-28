@@ -151,5 +151,5 @@ function learnKernel(LK::LearnKernel; cb=(LK::LearnKernel; sol=nothing, addtohis
             bestKernel = copy(KP)
         end
     end
-    return bestLsym, bestKernel
+    return bestLSym, bestKernel
 end

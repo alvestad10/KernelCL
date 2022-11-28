@@ -3,11 +3,7 @@ using KernelCL
 
 M = AHO(1.,24.,1.0,1.0,10)
 KP = KernelProblem(M;kernel=KernelCL.ConstantKernel(M,kernelType=:expA));
-RS = RunSetup(tspan=30,NTr=30)
-
-#sol = run_sim(KP,RS)
-#KernelCL.calcTrueLoss(sol,KP)
-#plotSKContour(KP,sol)
+RS = RunSetup(tspan=50,NTr=50,saveat=0.05)
 
 
 function get_new_lhistory()
@@ -46,17 +42,17 @@ end
 lhistory = get_new_lhistory()
 
 
-LK = LearnKernel(KP,30;runs_pr_epoch=5,
+LK = LearnKernel(KP,10;runs_pr_epoch=5,
             runSetup=RS,
             opt=KernelCL.ADAM(0.002));
 
-l, bestKP = learnKernel(LK, cb=cb)
+bestLSym, bestKP = learnKernel(LK, cb=cb)
 
 println("Testing the optimal kernel")
 RS_test = RunSetup(tspan=30,NTr=100)
-l = KernelCL.calcTrueLoss(sol,KP)
-plotSKContour(KP,sol)
-println("True loss: ", l)
+l = KernelCL.calcTrueLoss(sol,bestKP)
+plotSKContour(bestKP,sol)
+println("True loss: ", l,"\t Best LSym: ", bestLSym)
 
 
 begin
