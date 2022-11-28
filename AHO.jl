@@ -3,7 +3,7 @@ using KernelCL
 
 M = AHO(;m=1.0,λ=24.,RT=1.0,β=1.0,steps_pr_length=10)
 KP = KernelProblem(M;kernel=KernelCL.ConstantKernel(M,kernelType=:expA));
-RS = RunSetup(tspan=10,NTr=10,saveat=0.05)
+RS = RunSetup(tspan=30,NTr=30,saveat=0.05)
 
 
 function get_new_lhistory()

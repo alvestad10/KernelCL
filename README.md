@@ -2,7 +2,7 @@
 
 This is the code generating the simulations done in: 
 
-To run the code you need a version of Julia installed, then you can make separate scripts or follow the AHO.jl file which can be run in bash using `julia --project=. AHO.jl` or line by line using the Julia vscode extension.
+To run the code you need a version of Julia installed, then you can make separate scripts or follow the AHO.jl file which can be run in bash using `julia --project=. AHO.jl` or line by line using the Julia vscode extension. Before you run the code follow the Instantite section below to setup the necessary packages.
 
 ## Instantiate
 
@@ -22,7 +22,7 @@ First a simple example to run the Anharmonic oscillator on the canonical Schwing
 ```julia
 M = AHO(;m=1.0,λ=24.,RT=1.0,β=1.0,steps_pr_length=10)
 KP = KernelProblem(M;kernel=KernelCL.ConstantKernel(M,kernelType=:expA));
-RS = RunSetup(tspan=30,NTr=30)
+RS = RunSetup(tspan=30,NTr=30,saveat=0.05)
 
 sol = run_sim(KP,RS)
 l = KernelCL.calcTrueLoss(sol,KP)
@@ -41,7 +41,7 @@ using KernelCL
 
 M = AHO(;m=1.0,λ=24.,RT=1.0,β=1.0,steps_pr_length=10)
 KP = KernelProblem(M;kernel=KernelCL.ConstantKernel(M,kernelType=:expA));
-RS = RunSetup(tspan=10,NTr=10,saveat=0.05)
+RS = RunSetup(tspan=30,NTr=30,saveat=0.05)
 
 
 function get_new_lhistory()
