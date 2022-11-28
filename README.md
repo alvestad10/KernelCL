@@ -1,6 +1,6 @@
 # KernelCL.jl
 
-[![DOI](https://zenodo.org/badge/{github_id}.svg)](https://zenodo.org/badge/latestdoi/552342814)
+[![DOI](https://zenodo.org/badge/552342814.svg)](https://zenodo.org/badge/latestdoi/552342814)
 
 This is the code generating the simulations done in: 
 
