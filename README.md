@@ -2,7 +2,7 @@
 
 This is the code generating the simulations done in: 
 
-To run the code you need a version of Julia installed, then you can make separate scripts or follow the AHO.jl file which can be run using `julia --project=. AHO.jl` or line by line using the Julia vscode extension.
+To run the code you need a version of Julia installed, then you can make separate scripts or follow the AHO.jl file which can be run in bash using `julia --project=. AHO.jl` or line by line using the Julia vscode extension.
 
 ## Instantiate
 
