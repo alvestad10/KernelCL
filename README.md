@@ -1,5 +1,7 @@
 # KernelCL.jl
 
+[![DOI](https://zenodo.org/badge/{github_id}.svg)](https://zenodo.org/badge/latestdoi/552342814)
+
 This is the code generating the simulations done in: 
 
 To run the code you need a version of Julia installed, then you can make separate scripts or follow the AHO.jl file which can be run in bash using `julia --project=. AHO.jl` or line by line using the Julia vscode extension. Before you run the code follow the Instantite section below to setup the necessary packages.
