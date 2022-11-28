@@ -1,7 +1,7 @@
 using KernelCL
 
 
-M = AHO(1.,24.,1.0,1.0,10)
+M = AHO(m=1.0,λ=24.,RT=1.0,β=1.0,steps_pr_length=10)
 KP = KernelProblem(M;kernel=KernelCL.ConstantKernel(M,kernelType=:expA));
 RS = RunSetup(tspan=50,NTr=50,saveat=0.05)
 
