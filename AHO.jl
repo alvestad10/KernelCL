@@ -50,6 +50,7 @@ bestLSym, bestKP = learnKernel(LK, cb=cb)
 
 println("Testing the optimal kernel")
 RS_test = RunSetup(tspan=30,NTr=100)
+sol = run_sim(bestKP,RS_test)
 l = KernelCL.calcTrueLoss(sol,bestKP)
 plotSKContour(bestKP,sol)
 println("True loss: ", l,"\t Best LSym: ", bestLSym)
