@@ -130,6 +130,6 @@ struct AHO <: Model
     end
 end
 
-function AHO(;m=1.,λ=24.,RT=1.0,β=1.0,steps_pr_length=10)
-    return AHO(m,λ,RT,β,steps_pr_length)
+function AHO(;m=1.,λ=24.,RT=1.0,β=1.0,steps_pr_length=10,kwargs...)
+    return AHO(m,λ,RT,β,steps_pr_length;kwargs...)
 end

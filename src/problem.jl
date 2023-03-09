@@ -70,6 +70,7 @@ function run_sim(KP::KernelProblem, runSetup::RunSetup)
         else
             prob.u0 .= [randn();0.]
         end
+        prob = remake(prob,seed = 100 + i)
         prob
     end
 

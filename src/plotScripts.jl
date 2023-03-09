@@ -56,3 +56,30 @@ function plotSKContour(KP::KernelProblem{AHO},sol)
     
     return fig
 end
+
+
+
+function plotFWSKContour(KP::KernelProblem{AHO},sol,kwargs...)
+    obs = calc_obs(KP,sol)
+    avgRe, err_avgRe, avgIm, err_avgIm, avg2Re, err_avg2Re, avg2Im, err_avg2Im, corr0tRe, err_corr0tRe, corr0tIm, err_corr0tIm = calc_meanObs(KP,obs,length(sol))
+
+    tmax_inx = KP.model.contour.FWRTSteps
+    tp = KP.model.contour.tp[1:tmax_inx]
+
+    legend_outside = true
+
+    if legend_outside
+        fig = plot(xlabel=L"$\gamma$", size=(800,400), ylim=[-0.31,0.34]
+                    ;plot_setup(:outerright)...,kwargs...)
+    else
+        fig = plot(xlabel=L"$\gamma$",ylim=[-0.31,0.34]
+                    ;plot_setup(:bottomright)...,kwargs...)
+    end
+    
+    plot!(fig,tp,real(KP.y["corr0t"])[1:tmax_inx],label=false;solution_line_dict...)
+    plot!(fig,tp,imag(KP.y["corr0t"])[1:tmax_inx],label=false;solution_line_dict...)
+    scatter!(fig,tp .* (1 .+ 0.0),corr0tRe[1:tmax_inx], yerror = err_corr0tRe[1:tmax_inx],label=L"$\textrm{Re}\langle x(0)x(t) \rangle$";markers_dict(5,:dtriangle)...)
+    scatter!(fig,tp .* (1 .+ 0.0),corr0tIm[1:tmax_inx] .± err_corr0tIm[1:tmax_inx],label=L"$\textrm{Im}\langle x(0)x(t) \rangle$";markers_dict(6,:utriangle)...)
+    
+    return fig
+end
