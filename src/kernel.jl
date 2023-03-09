@@ -608,6 +608,120 @@ function sqrtK(u,p,::AHO_ConstKernel_expiSym)
     return [real(_H);imag(_H)]    
 end
 
+"""
+Constant kernel with the entries of the positive definite hermitian matrix A
+```math
+K = A
+```
+We get ``H`` by the Chelosky decomposition ``A=LL^*`` such that ``H=L``.
+"""
+mutable struct AHO_ConstKernel_PD <: AHOConstantKernelParameters
+    p::Vector{Float64}
+    sqrtK::Matrix{Float64}
+    K::Matrix{Float64}
+    Np::Integer
+    Np_Re::Integer
+end
+
+function getL!(L,L2,p,N,NRe)
+    inx = 0
+    for i in 1:N
+        L[i,i] = log(p[inx .+ i])
+        if i > 1
+            L[i,1:i-1] = p[inx .+ (1:i-1)]
+            L2[i,1:i-1] = p[NRe + inx - (i-1) .+ (1:i-1)]
+        end
+
+        inx += i
+    end
+
+end
+
+function getAandL(p,N,NRe)
+    L = zeros(eltype(p),N,N)
+    _L = Zygote.bufferfrom(L)
+    L2 = zeros(eltype(p),N,N)
+    _L2 = Zygote.bufferfrom(L2)
+    getL!(_L,_L2,p,N,NRe)
+    __L = copy(_L) .+ im*copy(_L2)
+    __L*transpose(__L),__L
+end
+
+function AHO_ConstKernel_PD(_K)
+
+    N = size(_K)[1]
+    Np = 2*(div(N*(N-1),2)) + N
+    Np_Re = (div(N*(N-1),2)) + N
+    L = cholesky(_K, NoPivot()).L
+
+    KRe = real(_K)
+    KIm = imag(_K)
+    
+    K = hcat([KRe;KIm],[-KIm;KRe])
+
+
+    _H = L
+    H = [real(_H);imag(_H)]
+
+    p = zeros(Np)
+    inx = 0
+    for i in 1:N
+        p[inx + i] = exp(real(L[i,i]))
+        if i > 1
+            p[inx .+ (1:i-1)] .= real(L[i,1:i-1])
+            p[Np_Re + inx - (i-1) .+ (1:i-1)] .= imag(L[i,1:i-1])
+        end
+        inx += i
+    end
+    
+    return AHO_ConstKernel_PD(p,H,K,Np,Np_Re)
+end
+
+function AHO_ConstKernel_PD(M::AHO)
+    @unpack t_steps = M.contour 
+    
+    K = zeros(t_steps,t_steps)
+    for i in 1:t_steps
+        K[i,i] = 1.
+    end
+
+    return AHO_ConstKernel_PD(K)
+end
+
+function updateKernel!(pK::AHO_ConstKernel_PD)
+
+    @unpack p,Np_Re = pK
+
+
+    t_steps = size(pK.sqrtK)[2]
+    K,L = getAandL(p,t_steps,Np_Re) 
+
+    KRe = real(K)
+    KIm = imag(K)
+    pK.K .= hcat([KRe;KIm],[-KIm;KRe])
+
+    pK.sqrtK .= [real(L);imag(L)]
+end
+
+function K(u,p,pK::AHO_ConstKernel_PD)
+    @unpack Np_Re = pK
+    t_steps = size(pK.sqrtK)[2]
+    K,_ = getAandL(p,t_steps,Np_Re) 
+    return real(K),imag(K)
+end
+
+
+function sqrtK(u,p,::AHO_ConstKernel_PD)
+    @unpack Np_Re = pK
+
+    t_steps = size(pK.sqrtK)[2]
+    _,L = getAandL(p,t_steps,Np_Re)  
+    return [real(L);imag(L)]    
+end
+
+function getKernelParams(pK::T) where {T <: AHO_ConstKernel_PD}
+    return pK.p
+end
 
 
 ##### LM_AHO Constant kernel
@@ -741,6 +855,8 @@ function ConstantKernel(M::AHO; kernelType=:expiP)
         pK = AHO_ConstKernel_expiSym(M)   
     elseif kernelType == :inM_expiP
         pK = AHO_ConstKernel_invM_expiP(M)  
+    elseif kernelType == :PD
+        pK = AHO_ConstKernel_PD(M)   
     end
 
     return ConstantKernel(pK)
