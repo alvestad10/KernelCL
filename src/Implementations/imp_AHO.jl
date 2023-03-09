@@ -21,10 +21,10 @@ function get_ab(model::AHO,kernel::ConstantKernel{T}) where {T <: AHOConstantKer
 
     function a_func!(du,u,p,t)
 
-        _x = @. (@view u[1:t_steps]) + im * (@view u[t_steps+1:end])
-        _A = im_pre_fac_KC * ( 
-                    (_x .- _x[gm1]) ./ a[gm1] + (_x .- _x[gp1]) ./ a
-                    .- (a .+ a[gm1])/2 .* (m .* _x .+ (λ/6) .* _x.^3)
+        _x = (@view u[1:t_steps]) .+ im .* (@view u[t_steps+1:end])
+        _A = im_pre_fac_KC * @. ( 
+                    (_x - _x[gm1]) / a[gm1] + (_x - _x[gp1]) / a
+                    - (a + a[gm1])/2 * (m * _x + (λ/6) * _x^3)
             )
         
         du[1:t_steps] .= real(_A)
