@@ -1,7 +1,7 @@
 module KernelCL
 
 using LinearAlgebra, Statistics
-using StochasticDiffEq
+using StochasticDiffEq, SciMLBase
 using Parameters, Measurements
 using Plots, LaTeXStrings 
 using JLD2
@@ -9,6 +9,9 @@ using SparseArrays
 using Plots
 using ForwardDiff, Zygote, Flux
 using ThreadsX
+using PreallocationTools
+using BlockArrays, SparseArrays, BandedMatrices
+using ModelingToolkit
 
 include("model.jl")
 include("kernel.jl")

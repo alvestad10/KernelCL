@@ -50,6 +50,11 @@ end
 
 
 
+function get_caches(T::Type,t_steps)
+    tmp = zeros(T,8t_steps)
+    return dualcache(tmp)
+end
+
 function run_sim(KP::KernelProblem, runSetup::RunSetup)
     @unpack tspan, NTr, saveat,scheme, dt, abstol, reltol, dtmax, adaptive, tspan_thermalization = runSetup
 
@@ -59,6 +64,7 @@ function run_sim(KP::KernelProblem, runSetup::RunSetup)
     if model isa AHO 
         u0 = zeros(eltype(getKernelParams(kernel)),2*model.contour.t_steps)
         noise_rate_prototype = zeros(eltype(getKernelParams(kernel)),2*model.contour.t_steps,model.contour.t_steps)
+        caches = [get_caches(Float64,model.contour.t_steps) for _ in 1:NTr]
     else
         u0 = zeros(2)
         noise_rate_prototype = zeros(2,1)
@@ -67,10 +73,11 @@ function run_sim(KP::KernelProblem, runSetup::RunSetup)
     function prob_func(prob,i,repeat)
         if model isa AHO
             prob.u0 .= [rand(model.contour.t_steps); zeros(model.contour.t_steps)]
+            prob = remake(prob,seed = 100 + i,p=caches[i])
         else
             prob.u0 .= [randn();0.]
+            prob = remake(prob,seed = 100 + i)
         end
-        prob = remake(prob,seed = 100 + i)
         prob
     end
 
